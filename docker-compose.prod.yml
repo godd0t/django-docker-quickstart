@@ -16,7 +16,7 @@ services:
       - static_files:/usr/src/app/static
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${APP_NAME}-backend.rule=Host(`${APP_HOST}`)"
+      - "traefik.http.routers.${APP_NAME}-backend.rule=Host(`${APP_DOMAIN}`)"
       - "traefik.http.routers.${APP_NAME}-backend.entrypoints=web-secure"
       - "traefik.http.services.${APP_NAME}-backend.loadbalancer.server.port=${APP_PORT}"
       - "traefik.http.routers.${APP_NAME}-backend.tls.certresolver=letsencrypt"
