@@ -57,7 +57,7 @@ target-version = ['py311']
 include = '\.pyi?$'
 # 'extend-exclude' excludes files or directories in addition to the defaults
 extend-exclude = '''
-^/migrations/
+^(.*/)?migrations/.*$
 '''
 
 
@@ -65,7 +65,7 @@ extend-exclude = '''
 format = "grouped"
 line-length = 88 # black default
 extend-exclude = [
-    "*/migrations/*",
+    "src/migrations/*",
     "src/media/*",
     "src/static/*",
     "src/manage.py",
