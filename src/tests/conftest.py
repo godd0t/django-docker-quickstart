@@ -13,7 +13,5 @@ def enable_db_access_for_all_tests(db):
 @pytest.fixture
 def test_user():
     return User.objects.create_user(
-        username='test_user',
-        email="test_user@test.com",
-        password="test_password"
+        username="test_user", email="test_user@test.com", password="test_password"
     )

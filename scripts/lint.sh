@@ -2,5 +2,5 @@
 
 APP_PATH="src"
 
-black $APP_PATH --check
 ruff $APP_PATH
+black $APP_PATH --check

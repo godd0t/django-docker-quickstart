@@ -13,13 +13,9 @@ services:
     volumes:
       - ./src:/usr/src/app/
       - ./deployment/scripts:/app/deployment/scripts/
-      - static_files:/usr/src/app/static
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.${APP_NAME}-backend.rule=Host(`${APP_HOST}`)"
-      - "traefik.http.routers.${APP_NAME}-backend.entrypoints=web"
-      - "traefik.http.services.${APP_NAME}-backend.loadbalancer.server.port=${APP_PORT}"
     env_file: .env
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
     depends_on:
       - db
       - redis
@@ -32,8 +28,8 @@ services:
     volumes:
       - postgres_data_dir:/var/lib/postgresql/data/
     env_file: .env
-    ports:
-      - "5432:5432"
+    expose:
+      - "${POSTGRES_PORT:-5432}"
     shm_size: 1g
 
 
@@ -63,41 +59,6 @@ services:
     container_name: "${APP_NAME}-celery-beat"
     command: [ "/bin/sh", "/app/deployment/scripts/celery/start-beat.sh" ]
 
-  nginx:
-    image: nginx:latest
-    container_name: "${APP_NAME}-nginx"
-    volumes:
-      - ./deployment/scripts/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - static_files:/usr/src/app/static
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.${APP_NAME}-nginx.rule=Host(`${APP_HOST}`) && PathPrefix(`/static`)"
-      - "traefik.http.routers.${APP_NAME}-nginx.entrypoints=web"
-      - "traefik.http.services.${APP_NAME}-nginx.loadbalancer.server.port=80"
-    depends_on:
-      - backend
-
-  traefik:
-    image: traefik:v2.5
-    container_name: "${APP_NAME}-traefik"
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-    ports:
-      - "80:80"
-      - "8080:8080"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    networks:
-      - default
-    depends_on:
-      - db
-      - backend
-      - redis
-
 volumes:
   postgres_data_dir:
   redis_data:
-  static_files:

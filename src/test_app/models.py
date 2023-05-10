@@ -1,3 +1,10 @@
-from django.db import models # noqa
+from django.db import models  # noqa
 
-# Create your models here.
+
+class TestModel(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    file = models.FileField(upload_to="test_app/files/")
+
+    def __str__(self):
+        return self.name
