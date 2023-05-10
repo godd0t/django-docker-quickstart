@@ -15,11 +15,11 @@ services:
       - ./deployment/scripts:/app/deployment/scripts/
       - static_files:/usr/src/app/static
       - media_files:/usr/src/app/media
-#    labels:
-#      - "traefik.enable=true"
-#      - "traefik.http.routers.${APP_NAME}-backend.rule=Host(`${APP_DOMAIN}`)"
-#      - "traefik.http.routers.${APP_NAME}-backend.entrypoints=web"
-#      - "traefik.http.services.${APP_NAME}-backend.loadbalancer.server.port=${APP_PORT}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}-backend.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}-backend.entrypoints=web"
+      - "traefik.http.services.${APP_NAME}-backend.loadbalancer.server.port=${APP_PORT:-8000}"
     env_file: .env
     expose:
       - "${APP_PORT:-8000}"
@@ -90,6 +90,7 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.watch=true"
       - "--log.level=DEBUG"
       - "--log.filePath=/var/log/traefik.log"
       - "--entrypoints.web.address=:80"
