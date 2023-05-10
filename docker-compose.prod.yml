@@ -67,20 +67,29 @@ services:
     container_name: "${APP_NAME}-celery-beat"
     command: [ "/bin/sh", "/app/deployment/scripts/celery/start-beat.sh" ]
 
-  nginx:
+  nginx-static:
     image: nginx:latest
-    container_name: "${APP_NAME}-nginx"
+    container_name: "${APP_NAME}-nginx-static"
     volumes:
-      - ./deployment/scripts/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deployment/scripts/nginx/nginx-static.conf:/etc/nginx/nginx.conf:ro
       - static_files:/usr/src/app/static
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}-nginx-static.rule=Host(`${APP_HOST}`) && PathPrefix(`/static`)"
+      - "traefik.http.routers.${APP_NAME}-nginx-static.entrypoints=web"
+      - "traefik.http.services.${APP_NAME}-nginx-static.loadbalancer.server.port=80"
+
+  nginx-media:
+    image: nginx:latest
+    container_name: "${APP_NAME}-nginx-media"
+    volumes:
+      - ./deployment/scripts/nginx/nginx-media.conf:/etc/nginx/nginx.conf:ro
       - media_files:/usr/src/app/media
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${APP_NAME}-nginx.rule=Host(`${APP_HOST}`) && (PathPrefix(`/static`) || PathPrefix(`/media`))"
-      - "traefik.http.routers.${APP_NAME}-nginx.entrypoints=web"
-      - "traefik.http.services.${APP_NAME}-nginx.loadbalancer.server.port=80"
-    depends_on:
-      - backend
+      - "traefik.http.routers.${APP_NAME}-nginx-media.rule=Host(`${APP_HOST}`) && PathPrefix(`/media`)"
+      - "traefik.http.routers.${APP_NAME}-nginx-media.entrypoints=web"
+      - "traefik.http.services.${APP_NAME}-nginx-media.loadbalancer.server.port=80"
 
   traefik:
     image: traefik:v2.5
@@ -91,7 +100,6 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web-secure.address=:443"
       - "--log.level=DEBUG"
-      - "--log.format=json"
       - "--log.filePath=/logs/traefik.log"
       - "--accesslog=true"
       - "--accesslog.filePath=/logs/access.log"
