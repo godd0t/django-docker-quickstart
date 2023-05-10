@@ -17,8 +17,8 @@ services:
     ports:
       - "${APP_PORT}:${APP_PORT}"
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
     command: [ "/bin/sh", "/app/deployment/scripts/backend/start.sh" ]
 
   db:
@@ -31,6 +31,11 @@ services:
     expose:
       - "${POSTGRES_PORT:-5432}"
     shm_size: 1g
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 
   redis:

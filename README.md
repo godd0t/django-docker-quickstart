@@ -1,15 +1,30 @@
-# Django Docker Quickstart
+# Django Docker Boilerplate
 
-This is a quickstart for Django with Docker.
+---
+Provides a quick and easy way to get started with a Django project using Docker.
+It comes with pre-configured services,
+including PostgreSQL, Redis, Celery (worker and beat),
+Nginx, and Traefik, that can be used to run a Django web application.
+It also comes with a few shortcuts to make development easier.
+---
 
 ## Features
 
-- Django
-- PostgreSQL
+- Django web application framework
+- PostgreSQL database
 - Redis
-- Celery(worker and beat)
-- Nginx
-- Traefik
+- Celery worker and beat services: Celery is a task queue that is used to run background tasks asynchronously.
+- Nginx web server: Used to serve static files and media files, and to proxy requests to the Django application.
+- Traefik reverse proxy: Used to route requests to the appropriate service. It also provides SSL termination.
+
+## Included Packages and Tools
+
+- Pytest: Testing framework
+- Pytest Sugar: Plugin for pytest that changes the default look
+- Pytest Django: Plugin for pytest that provides useful tools for testing Django applications
+- Coverage: Test coverage
+- Ruff: Linter
+- Black: Code formatter
 
 ## Requirements
 
@@ -41,7 +56,7 @@ To get started, follow these steps:
 
 ## Initial Setup
 
-### Development
+### Development Prerequisites
 
 To set up the project for development, follow these steps:
 
@@ -59,11 +74,17 @@ To set up the project for development, follow these steps:
     ```
     pip install -r requirements/requirements-dev.txt
     ```
+4. Build the image and run the container:
+    ```
+    docker-compose -f docker-compose.dev.yml up --build -d
+    ```
+   Or you can use the shortcut:
+    ```
+    make build-dev
+    ```
    
-4. Build and run the project:
-    ```
-   docker-compose up --build -d
-    ```
+Now you can access the application at http://localhost:8000.
+With the development environment, you can make changes to the code and the changes will be reflected immediately.
 
 
 ### Production
@@ -73,6 +94,10 @@ To set up the project for production, follow these steps:
 1. Build the image and run the container:
     ```
     docker-compose -f docker-compose.prod.yml up --build -d
+    ```
+   Or you can use the shortcut:
+    ```
+    make build-prod
     ```
 
 
@@ -114,4 +139,16 @@ Create a super user:
 
 ```
 make super-user
+```
+
+Build and run dev environment:
+
+```
+make build-dev
+```
+
+Build and run prod environment:
+
+```
+make build-prod
 ```

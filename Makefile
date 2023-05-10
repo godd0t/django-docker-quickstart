@@ -13,6 +13,10 @@ make test           	Run tests
 make super-user     	Create super user
 make make-migrations 	Make migrations
 make migrate        	Migrate
+make build-dev      	Build and run dev environment
+make stop-dev       	Stop dev environment
+make stop-prod      	Stop prod environment
+make build-prod     	Build and run prod environment
 make all            	Show help
 
 endef
@@ -43,6 +47,18 @@ migrate:
 	docker exec -it $(BACKEND_APP_NAME) $(SHELL) "-c" \
 	"python manage.py migrate"
 
+build-dev:
+	docker-compose -f docker-compose.yml up --build -d
+
+build-prod:
+	docker-compose -f docker-compose.prod.yml up --build -d
+
+stop-dev:
+	@docker-compose -f docker-compose.yml down
+
+stop-prod:
+	@docker-compose -f docker-compose.prod.yml down
+
 all: help
 
-.PHONY: help lint format test super-user make-migrations migrate all
+.PHONY: help lint format test super-user make-migrations migrate build-dev build-prod stop-dev stop-prod all
