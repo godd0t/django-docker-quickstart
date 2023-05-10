@@ -4,6 +4,8 @@ src/mediafiles/
 src/static/
 src/media
 
+test-compose.yml
+
 .venv
 .idea
 __pycache__/
