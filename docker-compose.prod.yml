@@ -74,7 +74,7 @@ services:
       - media_files:/usr/src/app/media
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${APP_NAME}-nginx.rule=Host(`${APP_DOMAIN}`) && (PathPrefix(`/`)"
+      - "traefik.http.routers.${APP_NAME}-nginx.rule=Host(`${APP_DOMAIN}`)"
       - "traefik.http.services.${APP_NAME}-nginx.loadbalancer.server.port=80"
     expose:
       - "80"
