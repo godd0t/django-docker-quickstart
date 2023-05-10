@@ -1,0 +1,87 @@
+version: '3.9'
+
+services:
+  backend:
+    container_name: "${APP_NAME}-backend"
+    extra_hosts:
+      - "localhost:${APP_HOST}"
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+      args:
+        - APP_NAME=${APP_NAME}
+        - APP_HOST=${APP_HOST}
+        - APP_PORT=${APP_PORT}
+    volumes:
+      - ./src:/usr/src/app/
+      - ./deployment/scripts:/app/deployment/scripts/
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}-backend.rule=Host(`${APP_HOST}`)"
+      - "traefik.http.routers.${APP_NAME}-backend.entrypoints=web-secure"
+      - "traefik.http.services.${APP_NAME}-backend.loadbalancer.server.port=${APP_PORT}"
+#    ports:
+#      - "${APP_PORT}:${APP_PORT}"
+    env_file: .env
+    depends_on:
+       db:
+         condition: service_healthy
+    command: [ "/bin/sh", "/app/deployment/scripts/backend/start.sh" ]
+
+  db:
+    image: postgres:15.2-alpine
+    container_name: "${APP_NAME}-db"
+    hostname: "${POSTGRES_HOST:-db}"
+    volumes:
+      - postgres_data_dir:/var/lib/postgresql/data/
+    env_file: .env
+    ports:
+      - "5432:5432"
+    shm_size: 1g
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+
+  redis:
+    container_name: "${APP_NAME}-redis"
+    image: redis:latest
+    volumes:
+        - redis_data:/data
+
+  celery-worker: &celery-worker
+    container_name: "${APP_NAME}-celery-worker"
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    volumes:
+      - ./src:/usr/src/app/
+      - ./deployment/scripts:/app/deployment/scripts/
+    env_file: .env
+    depends_on:
+      - db
+      - redis
+      - backend
+    command: [ "/bin/sh", "/app/deployment/scripts/celery/start-worker.sh" ]
+
+  celery-beat:
+    <<: *celery-worker
+    container_name: "${APP_NAME}-celery-beat"
+    command: [ "/bin/sh", "/app/deployment/scripts/celery/start-beat.sh" ]
+
+  traefik:
+    image: traefik:v2.5
+    container_name: "${APP_NAME}-traefik"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - default
+
+volumes:
+  postgres_data_dir:
+  redis_data:

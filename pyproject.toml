@@ -1,0 +1,93 @@
+[project]
+name = "project"
+version = "0.1.0"
+authors = ["Your Name <your.email@test.com>"]
+
+
+# TESTING
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --force-sugar --no-migrations --reuse-db --log-cli-level=INFO"
+testpaths = [
+    "tests",
+]
+pythonpath = [".", "src"]
+python_files = "tests.py test_*.py *_tests.py"
+DJANGO_SETTINGS_MODULE = "conf.settings.test"
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = "true"
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "import*",
+    "def __str__",
+    "def on_success",
+    "def clean",
+    "if missing",
+    "if relations.exists()",
+    "(FileDoesNotExistException, FileNotSupportedException)",
+]
+
+
+[tool.coverage.run]
+omit = [
+    "*/tests/*",
+    "*/migrations/*",
+    "*/urls.py",
+    "*/settings/*",
+    "*/wsgi.py",
+    "manage.py",
+    "*__init__.py",
+]
+source = ["src"]
+
+
+# LINTING
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+# 'extend-exclude' excludes files or directories in addition to the defaults
+extend-exclude = '''
+^/migrations/
+'''
+
+
+[tool.ruff]
+line-length = 88 # black default
+extend-exclude = [
+    "*/migrations/*",
+    "src/media/*",
+    "src/static/*",
+    "src/manage.py",
+    "*/test_data/*",
+    "*__init__.py",
+]
+
+select = ["E", "F"]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "F405", # name may be undefined, or defined from star imports
+]
+
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Assume Python 3.11.
+target-version = "py311"
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
+
+
+[tool.ruff.isort]
+force-to-top = ["src"]
+known-first-party = ["src"]
