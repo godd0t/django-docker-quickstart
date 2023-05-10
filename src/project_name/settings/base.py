@@ -1,13 +1,12 @@
-from os import getenv as os_getenv, path as os_path # noqa
+from os import getenv as os_getenv, path as os_path  # noqa
 from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-
-SECRET_KEY = os_getenv("APP_SECRET_KEY", get_random_secret_key())  # If SECRET_KEY is not set, generate a random one
+SECRET_KEY = os_getenv("SECRET_KEY", get_random_secret_key())  # If SECRET_KEY is not set, generate a random one
 APP_ENV = os_getenv("APP_ENV", "dev")
 DEBUG = os_getenv("DEBUG", "true").lower() in ["True", "true", "1", "yes", "y"]
 
@@ -35,6 +34,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",  # CorsMiddleware should be placed as high as possible,
     'django.middleware.common.CommonMiddleware',
@@ -64,7 +64,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'project_name.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -78,7 +77,6 @@ DATABASES = {
         "PORT": os_getenv("POSTGRES_PORT", "5432"),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -98,7 +96,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -110,18 +107,18 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os_path.join(BASE_DIR, 'static')
 MEDIA_URL = 'media/'
+MEDIA_ROOT = os_path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 # Redis
 REDIS_DB_KEYS = {

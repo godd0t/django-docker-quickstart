@@ -1,6 +1,7 @@
 # Application Directories
 src/staticfiles/
 src/mediafiles/
+src/static/
 src/media
 
 .venv
@@ -65,7 +66,6 @@ celerybeat.pid
 *.sage.py
 .env
 .env.prod
-.venv
 env/
 venv/
 ENV/
@@ -81,3 +81,4 @@ dmypy.json
 .pyre/
 .pytype/
 cython_debug/
+letsencrypt/

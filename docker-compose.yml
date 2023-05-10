@@ -13,16 +13,16 @@ services:
     volumes:
       - ./src:/usr/src/app/
       - ./deployment/scripts:/app/deployment/scripts/
+      - static_files:/usr/src/app/static
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${APP_NAME}-backend.rule=Host(`${APP_HOST}`)"
-      - "traefik.http.routers.${APP_NAME}-backend.entrypoints=web-secure"
+      - "traefik.http.routers.${APP_NAME}-backend.entrypoints=web"
       - "traefik.http.services.${APP_NAME}-backend.loadbalancer.server.port=${APP_PORT}"
-      - "traefik.http.routers.${APP_NAME}-backend.tls.certresolver=letsencrypt"
     env_file: .env
-#    depends_on:
-#      db:
-#        condition: service_healthy
+    depends_on:
+      - db
+      - redis
     command: [ "/bin/sh", "/app/deployment/scripts/backend/start.sh" ]
 
   db:
@@ -35,8 +35,7 @@ services:
     ports:
       - "5432:5432"
     shm_size: 1g
-#    healthcheck:
-#      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+
 
   redis:
     container_name: "${APP_NAME}-redis"
@@ -64,30 +63,41 @@ services:
     container_name: "${APP_NAME}-celery-beat"
     command: [ "/bin/sh", "/app/deployment/scripts/celery/start-beat.sh" ]
 
+  nginx:
+    image: nginx:latest
+    container_name: "${APP_NAME}-nginx"
+    volumes:
+      - ./deployment/scripts/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_files:/usr/src/app/static
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}-nginx.rule=Host(`${APP_HOST}`) && PathPrefix(`/static`)"
+      - "traefik.http.routers.${APP_NAME}-nginx.entrypoints=web"
+      - "traefik.http.services.${APP_NAME}-nginx.loadbalancer.server.port=80"
+    depends_on:
+      - backend
+
   traefik:
     image: traefik:v2.5
     container_name: "${APP_NAME}-traefik"
-    env_file:
-      - .env
     command:
+      - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.web-secure.address=:443"
-      - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
     ports:
       - "80:80"
-      - "443:443"
+      - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./letsencrypt:/letsencrypt"
     networks:
       - default
+    depends_on:
+      - db
+      - backend
+      - redis
 
 volumes:
   postgres_data_dir:
   redis_data:
-  letsencrypt:
+  static_files:

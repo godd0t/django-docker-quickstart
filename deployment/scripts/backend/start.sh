@@ -10,4 +10,4 @@ else
     python manage.py collectstatic --noinput
 fi
 
-gunicorn "$APP_NAME".wsgi:application --bind "$APP_HOST":"$APP_PORT" --workers 3 --timeout 60 --graceful-timeout 60 --log-level=info
+gunicorn "$APP_NAME".wsgi:application --bind "$APP_HOST":"$APP_PORT" --workers 3 --log-level=debug
