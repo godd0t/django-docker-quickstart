@@ -6,7 +6,7 @@ It comes with pre-configured services,
 including PostgreSQL, Redis, Celery (worker and beat),
 Nginx, and Traefik, that can be used to run a Django web application.
 It also comes with a few shortcuts to make development easier.
----
+
 
 ## Features
 
