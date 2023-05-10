@@ -3,8 +3,6 @@ version: '3.9'
 services:
   backend:
     container_name: "${APP_NAME}-backend"
-    extra_hosts:
-      - "localhost:${APP_HOST}"
     build:
       context: .
       dockerfile: deployment/Dockerfile
@@ -17,7 +15,7 @@ services:
       - ./deployment/scripts:/app/deployment/scripts/
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${APP_NAME}-backend.rule=Host(`${APP_HOST}`)"
+      - "traefik.http.routers.${APP_NAME}-backend.rule=Host(`${APP_DOMAIN}`)"
       - "traefik.http.routers.${APP_NAME}-backend.entrypoints=web-secure"
       - "traefik.http.services.${APP_NAME}-backend.loadbalancer.server.port=${APP_PORT}"
 #    ports:
