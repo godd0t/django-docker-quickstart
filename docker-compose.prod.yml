@@ -75,9 +75,11 @@ services:
       - media_files:/usr/src/app/media
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${APP_NAME}-nginx.rule=Host(`${APP_DOMAIN}`) && PathPrefix(`/static`,`/media`)"
+      - "traefik.http.routers.${APP_NAME}-nginx.rule=Host(`${APP_DOMAIN}`) && (PathPrefix(`/`)"
       - "traefik.http.routers.${APP_NAME}-nginx.entrypoints=web"
       - "traefik.http.services.${APP_NAME}-nginx.loadbalancer.server.port=80"
+      - "traefik.http.routers.${APP_NAME}-nginx.tls=true"
+      - "traefik.http.routers.${APP_NAME}-nginx.tls.certresolver=letsencrypt"
     expose:
       - "80"
     depends_on:
@@ -87,7 +89,17 @@ services:
     image: traefik:v2.5
     container_name: "${APP_NAME}-traefik"
     command:
-      - "--api.insecure=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--api.dashboard=true"
+      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DOMAIN}`) && (PathPrefix(`/`)"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=user:$$2y$$05$$22TlNvU.X30m4rVd3aIA3.jF/XXkh6eayHg5UYwDNgF8MVFwJgPrS"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.watch=true"
@@ -97,10 +109,6 @@ services:
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
     ports:
       - "80:80"
       - "443:443"
