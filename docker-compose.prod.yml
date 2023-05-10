@@ -106,7 +106,7 @@ services:
       - "--tracing=true"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DOMAIN}`) && (PathPrefix(`/`)"
+      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DOMAIN}`) && (PathPrefix(`/`))"
       - "traefik.http.routers.dashboard.tls=true"
       - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
