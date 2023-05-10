@@ -94,10 +94,10 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.watch=true"
       - "--api.dashboard=true"
-      - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myResolver.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.myResolver.acme.storage=/myResolver/acme.json"
+      - "--certificatesresolvers.myResolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myResolver.acme.httpchallenge.entrypoint=web"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--log.level=DEBUG"
@@ -105,19 +105,19 @@ services:
     labels:
       - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DOMAIN}`) && (PathPrefix(`/`)"
       - "traefik.http.routers.dashboard.tls=true"
-      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.tls.certresolver=myResolver"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.middlewares=auth"
       - "traefik.http.middlewares.auth.basicauth.users=user:$$2y$$05$$22TlNvU.X30m4rVd3aIA3.jF/XXkh6eayHg5UYwDNgF8MVFwJgPrS"
       - "traefik.http.routers.${APP_NAME}-nginx.tls=true"
-      - "traefik.http.routers.${APP_NAME}-nginx.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.${APP_NAME}-nginx.tls.certresolver=myResolver"
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./letsencrypt:/letsencrypt"
+      - "./myResolver:/myResolver"
 
 
 volumes:
