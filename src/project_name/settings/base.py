@@ -12,11 +12,11 @@ DEBUG = os_getenv("DEBUG", "true").lower() in ["True", "true", "1", "yes", "y"]
 
 ALLOWED_HOSTS = os_getenv("ALLOWED_HOSTS", "localhost").split(",")
 
-CSRF_TRUSTED_ORIGINS = os_getenv("CSRF_TRUSTED_ORIGINS", "http://localhost").split(",")
 
 if DEBUG:
     CORS_ORIGIN_ALLOW_ALL = True
 else:
+    CSRF_TRUSTED_ORIGINS = os_getenv("CSRF_TRUSTED_ORIGINS", "http://localhost").split(",")
     CORS_ALLOWED_ORIGINS = os_getenv("CORS_ALLOWED_ORIGINS", "http://localhost").split(",")
 
 # Application definition
