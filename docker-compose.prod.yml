@@ -78,8 +78,6 @@ services:
       - "traefik.http.routers.${APP_NAME}-nginx.rule=Host(`${APP_DOMAIN}`) && (PathPrefix(`/`)"
       - "traefik.http.routers.${APP_NAME}-nginx.entrypoints=web"
       - "traefik.http.services.${APP_NAME}-nginx.loadbalancer.server.port=80"
-      - "traefik.http.routers.${APP_NAME}-nginx.tls=true"
-      - "traefik.http.routers.${APP_NAME}-nginx.tls.certresolver=letsencrypt"
     expose:
       - "80"
     depends_on:
@@ -100,6 +98,8 @@ services:
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.middlewares=auth"
       - "traefik.http.middlewares.auth.basicauth.users=user:$$2y$$05$$22TlNvU.X30m4rVd3aIA3.jF/XXkh6eayHg5UYwDNgF8MVFwJgPrS"
+      - "traefik.http.routers.${APP_NAME}-nginx.tls=true"
+      - "traefik.http.routers.${APP_NAME}-nginx.tls.certresolver=letsencrypt"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
