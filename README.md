@@ -1,4 +1,4 @@
-# Django Docker Boilerplate
+# Django Docker Quickstart
 
 ---
 Provides a quick and easy way to get started with a Django project using Docker.
