@@ -18,6 +18,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${APP_NAME}-backend.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}-backend.entrypoints=web"
       - "traefik.http.services.${APP_NAME}-backend.loadbalancer.server.port=${APP_PORT:-8000}"
     env_file: .env
     expose:
@@ -75,6 +76,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${APP_NAME}-nginx.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}-nginx.entrypoints=web"
       - "traefik.http.services.${APP_NAME}-nginx.loadbalancer.server.port=80"
     expose:
       - "80"
@@ -86,20 +88,12 @@ services:
     image: traefik:v2.5
     container_name: "${APP_NAME}-traefik"
     command:
-      - "--api.dashboard=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.watch=true"
-      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DOMAIN}`) && (PathPrefix(`/`)"
-      - "traefik.http.routers.dashboard.tls=true"
-      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.middlewares=auth"
-      - "traefik.http.middlewares.auth.basicauth.users=user:$$2y$$05$$22TlNvU.X30m4rVd3aIA3.jF/XXkh6eayHg5UYwDNgF8MVFwJgPrS"
-      - "traefik.http.routers.${APP_NAME}-nginx.tls=true"
-      - "traefik.http.routers.${APP_NAME}-nginx.tls.certresolver=letsencrypt"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
+      - "--api.dashboard=true"
       - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
@@ -108,6 +102,16 @@ services:
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--log.level=DEBUG"
       - "--log.filePath=/var/log/traefik.log"
+    labels:
+      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DOMAIN}`) && (PathPrefix(`/`)"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=user:$$2y$$05$$22TlNvU.X30m4rVd3aIA3.jF/XXkh6eayHg5UYwDNgF8MVFwJgPrS"
+      - "traefik.http.routers.${APP_NAME}-nginx.tls=true"
+      - "traefik.http.routers.${APP_NAME}-nginx.tls.certresolver=letsencrypt"
     ports:
       - "80:80"
       - "443:443"
