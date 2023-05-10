@@ -103,7 +103,7 @@ services:
       - "443:443"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - letsencrypt:/letsencrypt
+      - "./letsencrypt:/letsencrypt"
 
 
 volumes:
@@ -111,4 +111,3 @@ volumes:
   media_files:
   postgres_data_dir:
   redis_data:
-  letsencrypt:
