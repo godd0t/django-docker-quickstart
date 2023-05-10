@@ -18,9 +18,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${APP_NAME}-backend.rule=Host(`${APP_DOMAIN}`)"
-      - "traefik.http.routers.${APP_NAME}-backend.entrypoints=web-secure"
+      - "traefik.http.routers.${APP_NAME}-backend.entrypoints=web"
       - "traefik.http.services.${APP_NAME}-backend.loadbalancer.server.port=${APP_PORT}"
-      - "traefik.http.routers.${APP_NAME}-backend.tls.certresolver=letsencrypt"
     env_file: .env
     expose:
       - "${APP_PORT:-8000}"
@@ -76,34 +75,36 @@ services:
       - media_files:/usr/src/app/media
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${APP_NAME}-nginx.rule=Host(`${APP_HOST}`) && (PathPrefix(`/static`) && PathPrefix(`/media`))"
+      - "traefik.http.routers.${APP_NAME}-nginx.rule=Host(`${APP_DOMAIN}`) && PathPrefix(`/static`,`/media`)"
       - "traefik.http.routers.${APP_NAME}-nginx.entrypoints=web"
       - "traefik.http.services.${APP_NAME}-nginx.loadbalancer.server.port=80"
+    expose:
+      - "80"
     depends_on:
-      - backend
+        - backend
 
   traefik:
     image: traefik:v2.5
     container_name: "${APP_NAME}-traefik"
     command:
+      - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.web-secure.address=:443"
-      - "--accesslog=true"
-      - "--accesslog.filePath=/logs/access.log"
-      - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./letsencrypt:/letsencrypt"
-    networks:
-      - default
+      - letsencrypt:/letsencrypt
+
 
 volumes:
   static_files:
