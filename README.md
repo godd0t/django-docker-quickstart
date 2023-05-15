@@ -42,16 +42,16 @@ This quickstart provides an easy way to initiate a Django project using Docker. 
     cd django-docker-quickstart
     ```
 
-3. **Copy the `env.example` file to `.env` and update the values as needed:**
-<br><br/>
-    **For Linux/macOS:**  
-    ```bash
-    cp env.example .env
-    ```
-    **For Windows (Command Prompt):**  
-    ```cmd
-    Copy-Item -Path env.example -Destination .env
-    ```
+3. **Copy the `env.example` file to `.env` and update the values as needed:**  
+
+   - **For Linux/macOS:**  
+     ```bash
+     cp env.example .env
+     ```
+   - **For Windows (Command Prompt):**  
+     ```cmd
+      Copy-Item -Path env.example -Destination .env
+     ```
 
 ---
 
@@ -74,8 +74,8 @@ This quickstart provides an easy way to initiate a Django project using Docker. 
     pip install -r src/requirements-dev.txt
     ```
 
-4. **Build the image and run the container:**
-<br><br/>
+4. **Build the image and run the container:**  
+   
    - If buildkit is not enabled, enable it and build the image:
      ```bash
      DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f docker-compose.yml up --build -d
@@ -95,22 +95,21 @@ You can now access the application at http://localhost:8000. The development env
 
 ### Production Setup
 
-1. **Build the image and run the container:**
-<br><br/>
-    - If buildkit is not enabled, enable it and build the image:
-    ```bash
-    DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f docker-compose.prod.yml up --build -d
-    ```
+1. **Build the image and run the container:**  
 
-    - If buildkit is enabled,
-    build the image:
+   - If buildkit is not enabled, enable it and build the image:
      ```bash
-    docker-compose -f docker-compose.prod.yml up --build -d
-    ```
+       DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f docker-compose.prod.yml up --build -d
+     ```
+
+   - If buildkit is enabled, build the image:
+     ```bash
+      docker-compose -f docker-compose.prod.yml up --build -d
+     ```
    - Or, use the shortcut:
-    ```bash
-    make build-prod
-    ```
+     ```bash
+       make build-prod
+     ```
 
 ---
 
