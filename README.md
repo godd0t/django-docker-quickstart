@@ -69,13 +69,13 @@ To set up the project for development, follow these steps:
     source venv/bin/activate
     ```
    
-3. Install the development requirements:
+3. (Optional) Install the development requirements specific to your IDE for enhanced functionality and support.
     ```
-    pip install -r requirements/requirements-dev.txt
+    pip install -r src/requirements-dev.txt
     ```
 4. Build the image and run the container:
     ```
-    docker-compose -f docker-compose.dev.yml up --build -d
+    docker-compose -f docker-compose.yml up --build -d
     ```
    Or you can use the shortcut:
     ```
