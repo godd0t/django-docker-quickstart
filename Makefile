@@ -1,6 +1,9 @@
-PROJECTNAME := project_name
+include .env
+export $(shell sed 's/=.*//' .env)
+
 SHELL := /bin/sh
-APP_NAME := project_name
+PROJECTNAME ?= default_app_name
+APP_NAME := $(PROJECTNAME)
 BACKEND_APP_NAME := $(APP_NAME)-backend
 
 define HELP
@@ -48,10 +51,10 @@ migrate:
 	"python manage.py migrate"
 
 build-dev:
-	docker-compose -f docker-compose.yml up --build -d
+	DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f docker-compose.yml up --build -d
 
 build-prod:
-	docker-compose -f docker-compose.prod.yml up --build -d
+	DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f docker-compose.prod.yml up --build -d
 
 stop-dev:
 	@docker-compose -f docker-compose.yml down

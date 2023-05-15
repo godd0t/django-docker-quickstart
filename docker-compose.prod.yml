@@ -112,15 +112,6 @@ services:
       - "--log.level=DEBUG"
       - "--accesslog=true"
       - "--tracing=true"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DOMAIN}`) && (PathPrefix(`/`))"
-      - "traefik.http.routers.dashboard.tls=true"
-      - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
-      - "traefik.http.routers.dashboard.entrypoints=websecure"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.middlewares=auth"
-      - "traefik.http.middlewares.auth.basicauth.users=user:$$2y$$05$$22TlNvU.X30m4rVd3aIA3.jF/XXkh6eayHg5UYwDNgF8MVFwJgPrS"
     ports:
       - "80:80"
       - "443:443"
