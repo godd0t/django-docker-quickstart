@@ -84,3 +84,7 @@ dmypy.json
 .pytype/
 cython_debug/
 letsencrypt/
+
+# PDM
+.pdm-python
+pdm.lock

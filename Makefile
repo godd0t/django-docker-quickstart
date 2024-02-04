@@ -2,7 +2,7 @@ include .env
 export $(shell sed 's/=.*//' .env)
 
 SHELL := /bin/sh
-PROJECTNAME ?= default_app_name
+PROJECTNAME ?= project_name
 APP_NAME := $(PROJECTNAME)
 BACKEND_APP_NAME := $(APP_NAME)-backend
 

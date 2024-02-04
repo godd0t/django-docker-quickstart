@@ -9,7 +9,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     && rm -rf /var/lib/apt/lists/*
 
 
-COPY src/requirements.txt ./requirements.txt
+COPY src/req.txt ./requirements.txt
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install pip --upgrade \

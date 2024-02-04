@@ -22,7 +22,7 @@ services:
     command: [ "/bin/sh", "/app/deployment/scripts/backend/start.sh" ]
 
   db:
-    image: postgres:15.2-alpine
+    image: postgres:16.1-alpine
     container_name: "${APP_NAME}-db"
     hostname: "${POSTGRES_HOST:-db}"
     volumes:
