@@ -35,8 +35,12 @@ lint:
 format:
 	@bash ./scripts/format.sh
 
+generate-secret:
+	python -c "import secrets; print(secrets.token_urlsafe())"
+
 test:
-	@bash ./scripts/test.sh
+	coverage run --source='.' manage.py test
+	coverage html
 
 super-user:
 	docker exec -it $(BACKEND_APP_NAME) sh "-c" \
@@ -61,6 +65,15 @@ stop-dev:
 
 stop-prod:
 	@docker-compose -f docker-compose.prod.yml down
+
+clean-migrations:
+	find . -path "*/migrations/*.py" -not -name "__init__.py" -not -name "*_load_initial_*.py" -delete
+	find . -path "*/migrations/*.pyc"  -delete
+
+clean-pyc:
+	find . -name '*.pyc' -exec rm -f {} +
+	find . -name '*.pyo' -exec rm -f {} +
+	find . -name '*~' -exec rm -f {} +
 
 all: help
 

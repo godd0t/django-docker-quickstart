@@ -1,9 +1,10 @@
 # Application Directories
-src/staticfiles/
-src/mediafiles/
-src/static/
-src/media
+quickstart/staticfiles/
+quickstart/mediafiles/
+quickstart/static/
+quickstart/media
 
+.terraform
 test-compose.yml
 
 .venv

@@ -1,35 +1,15 @@
 version: '3.9'
 
 services:
-  backend:
-    container_name: "${APP_NAME}-backend"
-    build:
-      context: .
-      dockerfile: deployment/Dockerfile
-      args:
-        - APP_NAME=${APP_NAME}
-        - APP_HOST=${APP_HOST}
-        - APP_PORT=${APP_PORT}
-    volumes:
-      - ./src:/usr/src/app/
-      - ./deployment/scripts:/app/deployment/scripts/
-    env_file: .env
-    ports:
-      - "${APP_PORT}:${APP_PORT}"
-    depends_on:
-      db:
-        condition: service_healthy
-    command: [ "/bin/sh", "/app/deployment/scripts/backend/start.sh" ]
-
   db:
     image: postgres:15.2-alpine
-    container_name: "${APP_NAME}-db"
+    container_name: "${APP_NAME}_db"
     hostname: "${POSTGRES_HOST:-db}"
     volumes:
       - postgres_data_dir:/var/lib/postgresql/data/
     env_file: .env
-    expose:
-      - "${POSTGRES_PORT:-5432}"
+    ports:
+      - "7432:5432"
     shm_size: 1g
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}" ]
@@ -37,32 +17,46 @@ services:
       timeout: 5s
       retries: 5
 
-
   redis:
-    container_name: "${APP_NAME}-redis"
-    image: redis:latest
+    image: redis:alpine
+    container_name: "${APP_NAME}_redis"
+    command: redis-server
+    ports:
+      - "6383:6379"
     volumes:
         - redis_data:/data
 
-  celery-worker: &celery-worker
-    container_name: "${APP_NAME}-celery-worker"
+  backend:
+    image: "django-${APP_NAME}"
+    container_name: "${APP_NAME}_server"
     build:
       context: .
-      dockerfile: deployment/Dockerfile
+      dockerfile: Dockerfile
     volumes:
       - ./src:/usr/src/app/
-      - ./deployment/scripts:/app/deployment/scripts/
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  celery-worker: &celery-worker
+    image: "django-${APP_NAME}"
+    container_name: "${APP_NAME}_celery_worker"
+    volumes:
+      - ./src:/usr/src/app/
     env_file: .env
     depends_on:
       - db
       - redis
       - backend
-    command: [ "/bin/sh", "/app/deployment/scripts/celery/start-worker.sh" ]
+    command: celery -A ${APP_NAME} worker -l info
 
   celery-beat:
     <<: *celery-worker
-    container_name: "${APP_NAME}-celery-beat"
-    command: [ "/bin/sh", "/app/deployment/scripts/celery/start-beat.sh" ]
+    container_name: "${APP_NAME}_celery_beat"
+    command: celery -A ${APP_NAME} beat -l info
 
 volumes:
   postgres_data_dir:
