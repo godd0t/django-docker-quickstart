@@ -71,7 +71,7 @@ This quickstart provides an easy way to initiate a Django project using Docker. 
 
 3. **(Optional) Install the development requirements specific to your IDE for enhanced functionality and support.**
     ```bash
-    pip install -r src/requirements-dev.txt
+    pip install -r src/requirements.dev.txt
     ```
 
 4. **Build the image and run the container:**  
